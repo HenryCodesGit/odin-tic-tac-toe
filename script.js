@@ -1,5 +1,93 @@
 const GRID = 3;
 
+//Setting up the initial start modal
+const MODAL = document.querySelector('dialog.options'); MODAL.close();
+MODAL.showModal();
+MODAL.querySelector('button').addEventListener('click', function(){    
+    //Get the details for the players
+    let player1 = {
+        name: MODAL.querySelector('#name-1').value,
+        cpu: MODAL.querySelector('#cpu-1').checked,
+        mark: 'x'
+    }
+
+    let player2 = {
+        name: MODAL.querySelector('#name-2').value,
+        cpu: MODAL.querySelector('#cpu-2').checked,
+        mark: 'o'
+    }
+
+    //Clear the modal
+    MODAL.querySelector('#name-1').value = '';
+    MODAL.querySelector('#cpu-1').checked = false;
+    MODAL.querySelector('#name-2').value = '';
+    MODAL.querySelector('#cpu-2').checked = false;
+
+
+    //Hide the modal, then start the game
+    MODAL.close();
+
+    //Clear the previous board
+    CELLS.forEach((cell) => {
+        cell.querySelector('text').textContent = '';
+    });
+
+    game.start(
+        (player1.cpu) ? makeCPUPlayer(player1.name,player1.mark) : makePlayer(player1.name,player1.mark),
+        (player2.cpu) ? makeCPUPlayer(player2.name,player2.mark) : makePlayer(player2.name,player2.mark),
+    );
+});
+
+//Preventing escape key closing of the modal
+MODAL.addEventListener('keydown', (e) =>{
+    if(e.key == 'Escape') e.preventDefault();
+});
+
+//Setting up the blocker dialog to prevent other things from happening
+const BLOCKER = document.querySelector('dialog.blocker');
+BLOCKER.addEventListener('keydown', (e) =>{
+    if(e.key == 'Escape') e.preventDefault();
+});
+
+const PLAY_AGAIN = document.querySelector('dialog.play-again');
+PLAY_AGAIN.addEventListener('keydown', (e) =>{
+    if(e.key == 'Escape') e.preventDefault();
+})
+PLAY_AGAIN.querySelector('button').addEventListener('click', ()=>{
+    //Clear the previous board
+    CELLS.forEach((cell) => {
+        cell.querySelector('text').textContent = '';
+    });
+    game.reset();
+    MODAL.showModal();
+    PLAY_AGAIN.close();
+});
+
+//Setting up beh aviour for all the cells
+const CELLS = document.querySelectorAll('.cell');
+CELLS.forEach((cell) => {
+    cell.addEventListener('click', () =>{
+        //Set the text
+        cell.querySelector('text').textContent = 
+            game.currentPlayer.makeMove(
+                cell.getAttribute('data-row'),
+                cell.getAttribute('data-col'))
+        ;
+    });
+})
+
+const RESET = document.querySelector('#reset');
+RESET.addEventListener('click',()=>{
+    //Clear the previous board
+    CELLS.forEach((cell) => {
+        cell.querySelector('text').textContent = '';
+    });
+
+    game.reset();
+
+    MODAL.showModal();
+});
+
 const gameboard = (function(GRID){
     let array = [];
 
@@ -33,10 +121,6 @@ const gameboard = (function(GRID){
             for(j=0; j< GRID; j++)
                 array[i].push(undefined);
         }
-        
-        // for(i = 0; i<array.length; i++)
-        //     for(j = 0; j< array[i].length ; j++)
-        //         array[i][j] = undefined;
     }
 
     clear();
@@ -48,14 +132,22 @@ const game = (function(){
     let currentPlayer;
     //Initialize the game
 
-    function start(player1,player2){
+    const reset = () =>{
+        //Clearing the board related things
+        gameboard.clear();
+        players.length = 0;
+        currentPlayer = undefined;
+    };
+
+    const start = (player1,player2) => {
+        reset();
         players.push(player1,player2);
 
         nextMove();
-    }
+    };
 
     //Request the next player to make their move
-    function nextMove(){
+    const nextMove = () => {
         //Get the current player
         currentPlayer = players.shift();
         players.push(currentPlayer);
@@ -64,14 +156,18 @@ const game = (function(){
         //TODO: If human, re-enable buttons
         //TODO: If CPU, automatically pick
         currentPlayer.requestMove();
-    }
+    };
 
     function endGame(player){
-        if(player == null){
-            alert('Game is over! It was a tie');
-        } else {
-            alert('Game is over! ' + currentPlayer.name + " has won!");
-        }
+        setTimeout( 
+            () => {
+                if(player == null){
+                    alert('Game is over! It was a tie');
+                } else {
+                    alert('Game is over! ' + currentPlayer.name + " has won!")}
+                PLAY_AGAIN.showModal();
+            }, 10
+        );
     }
 
     function makeMove(player,row, col){
@@ -86,7 +182,7 @@ const game = (function(){
 
         //Check to see if there is a winner
         //Check rows
-        for(currCol = 1; currCol < GRID; currCol++){
+        for(currCol = 1; currCol <= GRID; currCol++){
             if (gameboard.array[row-1][currCol-1] != player.piece) break; //No point continuing to check if piece is wrong
             if(currCol!=3) continue; //Don't bother changing gameEnded unless we've searched the whole row
 
@@ -95,7 +191,7 @@ const game = (function(){
         }
 
         //Check columns
-        for(currRow = 1; currRow < GRID; currRow++){
+        for(currRow = 1; currRow <= GRID; currRow++){
             if (gameboard.array[currRow-1][col-1] != player.piece) break; 
             if(currRow!=3) continue;
 
@@ -146,7 +242,12 @@ const game = (function(){
         nextMove();
     }
 
-    return {start, makeMove};
+    return { 
+        get currentPlayer(){return currentPlayer;},
+        players, 
+        start, 
+        reset, 
+        makeMove};
 })();
 
 //Factory function to make a player
@@ -156,34 +257,43 @@ const makePlayer = (name,piece) => {
     const incrementScore = () => score++;
     const resetScore = () => score = 0;
 
-    
     function requestMove(){
         //TODO: //When requestMove is called, the buttons are re-enabled for the player to click
         //For now, it just shows an input asking where the player wants to placce their piece
         console.log("It is now " + name + "'s turn.")
         console.log(gameboard.array);
-        let row, col;
+
+        BLOCKER.close();
         
-        let valid = false;
-        while(!valid){
-            row = parseInt(prompt("Which row to place?"));
-            col = parseInt(prompt("Which col to place?"));
-            console.log("Attempting to place in row" + row + " and column " + col);
-            valid = (gameboard.array[row-1][col-1] == undefined)
+        //makeMove.call(this);
+    }
+
+    function makeMove(row, col){
+        if(row == undefined || col == undefined){
+            let valid = false;
+            while(!valid){
+                row = parseInt(prompt("Which row to place?"));
+                col = parseInt(prompt("Which col to place?"));
+                console.log("Attempting to place in row" + row + " and column " + col);
+                valid = (gameboard.array[row-1][col-1] == undefined)
+            }
         }
-        
-        game.makeMove(this, row,col);
+        game.makeMove(this,row,col);
+        return this.piece;
     }
 
 
-    return {name, piece, incrementScore, resetScore, requestMove}
+    return {name, piece, incrementScore, resetScore, requestMove, makeMove}
 };
 
 //Factory to make a computer controlled player
 const makeCPUPlayer = (name,piece) => {
-    const {incrementScore, resetScore} = makePlayer(name,piece);
+    const {incrementScore, resetScore, makeMove} = makePlayer(name,piece);
 
     function requestMove(){
+
+        //Blocker is enabled if its the CPU's turn
+        BLOCKER.showModal();
         //CPU randomly picks choices until one is valid
 
         console.log("It is now " + name + "'s turn.")
@@ -198,13 +308,14 @@ const makeCPUPlayer = (name,piece) => {
             valid = (gameboard.array[row-1][col-1] == undefined)
         }
 
-        game.makeMove(this, row, col);
+        //Adding a timeout of 1 second just so its not instant
+        setTimeout(()=>{
+            let cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`)
+            cell.click();
+            //game.makeMove(this, row, col);
+        },1000);
     }
 
-    return {name, piece, incrementScore, resetScore, requestMove};
+    return {name, piece, incrementScore, resetScore, requestMove, makeMove};
 }
 
-//Testing the code
-let player1 = makePlayer('henry','x');
-let player2 = makeCPUPlayer('CPU','o');
-game.start(player1,player2);

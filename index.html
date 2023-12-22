@@ -8,6 +8,93 @@
     <script src="script.js" defer></script>
 </head>
 <body>
-    
+    <div class="board">
+        <div class="cell" data-row="1" data-col="1">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">x</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="1" data-col="2">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">o</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="1" data-col="3">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">x</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="cell" data-row="2" data-col="1">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">o</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="2" data-col="2">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">x</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="2" data-col="3">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">o</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="line"></div>
+        <div class="cell" data-row="3" data-col="1">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">x</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="3" data-col="2">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">o</text>
+            </svg>
+        </div>
+        <div class="line"></div>
+        <div class="cell" data-row="3" data-col="3">
+            <svg class="icon" viewBox="0 0 20 20">
+                <text x="50%" y="14" text-anchor="middle">x</text>
+            </svg>
+        </div>
+    </div>
+    <div class="button-container"> 
+        <button id="reset">&#8634</button> <!-- Restart button-->
+    </div>
+    <dialog class="options">
+        <div class="player-container">
+            <label for="name-1">Player-1 Name</label>
+            <input type="text" name="name-1" id="name-1">
+            <label for="cpu-1">Controlled by CPU?</label>
+            <input type="checkbox" name="cpu-1" id="cpu-1">
+        </div>
+        <div class="player-container">
+            <label for="name-2">Player-2 Name</label>
+            <input type="text" name="name-2" id="name-2">
+            <label for="cpu-2">Controlled by CPU?</label>
+            <input type="checkbox" name="cpu-2" id="cpu-2">
+        </div>
+
+        <button>Start Game</button>
+    </dialog>
+
+    <dialog class="play-again">
+        <button>Play Again</button>
+    </dialog>
+
+    <dialog class="blocker"></dialog>
 </body>
 </html>

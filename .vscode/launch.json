@@ -1,0 +1,10 @@
+{
+    "configurations": [
+        {
+            "type": "chrome",
+            "name": "file://wsl.localhost/Ubuntu/home/imhenryma/repos/odin-tic-tac-toe/index.html",
+            "request": "launch",
+            "url": "file://wsl.localhost/Ubuntu/home/imhenryma/repos/odin-tic-tac-toe/index.html"
+        }
+    ]
+}
